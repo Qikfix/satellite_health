@@ -4,6 +4,37 @@
 
 SSL_BUILD="/root/ssl-build/"
 
+test_mongodb()
+{
+  #set -x
+  url=$1
+  port=$2
+
+cat << EOF | mongo 1>/dev/null 2>/dev/null
+use pulp_database
+EOF
+
+  if [ $? -eq 0 ]; then
+    echo  "MONGODB OK == $url:$port Responsive"
+  else
+    echo  "MONGODB FAIL == $url:$port Non Responsive"
+  fi
+}
+
+test_postgres()
+{
+  #set -x
+  url=$1
+  port=$2
+
+  (echo "\conninfo") | su - postgres -c "psql foreman" 1>/dev/null 2>/dev/null
+
+  if [ $? -eq 0 ]; then
+    echo  "POSTGRES OK == $url:$port Responsive"
+  else
+    echo  "POSTGRES FAIL == $url:$port Non Responsive"
+  fi
+}
 
 qpid_broker_test()
 {
@@ -114,7 +145,7 @@ tomcat_test()
 
   curl --cert $SSL_BUILD/$server/$crt_file \
 	--key $SSL_BUILD/$server/$key_file \
-	-k https://$server:8443
+	-k https://$server:8443 1>/dev/null 2>/dev/null
 
   if [ $? -eq 0 ]; then
     echo  "TOMCAT OK ==  $server:8443 Responsive"
@@ -186,7 +217,7 @@ test_area()
 generated_certs()
 {
   server=$1
-  echo "Generated Certs"
+  #echo "Generated Certs"
   cert_list=$(ls /root/ssl-build/$server/*.crt | cut -d/ -f5)
   for b in $cert_list
   do
@@ -197,15 +228,18 @@ generated_certs()
 
 check_servers()
 {
-  echo "Server List"
+  #echo "Server List"
   #servers="sat631.local.domain"
   servers=$(ls -l $SSL_BUILD | grep ^d | awk '{print $NF}')
 
   for b in $servers
   do
-    echo - $b
+    #echo - $b
     generated_certs $b
   done
+
+  test_postgres localhost 5432
+  test_mongodb localhost 27017
 }
 
 check_servers
