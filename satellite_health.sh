@@ -4,6 +4,21 @@
 
 SSL_BUILD="/root/ssl-build/"
 
+test_squid()
+{
+  #set -x
+  url=$1
+  port=$2
+
+  curl $url:$port 1>/dev/null 2>/dev/null
+
+  if [ $? -eq 0 ]; then
+    echo  "SQUID ................................. OK   == $url:$port Responsive"
+  else
+    echo  "SQUID ................................. FAIL == $url:$port Non Responsive"
+  fi
+}
+
 test_mongodb()
 {
   #set -x
@@ -15,9 +30,9 @@ use pulp_database
 EOF
 
   if [ $? -eq 0 ]; then
-    echo  "MONGODB OK == $url:$port Responsive"
+    echo  "MONGODB ............................... OK   == $url:$port Responsive"
   else
-    echo  "MONGODB FAIL == $url:$port Non Responsive"
+    echo  "MONGODB ............................... FAIL == $url:$port Non Responsive"
   fi
 }
 
@@ -30,9 +45,9 @@ test_postgres()
   (echo "\conninfo") | su - postgres -c "psql foreman" 1>/dev/null 2>/dev/null
 
   if [ $? -eq 0 ]; then
-    echo  "POSTGRES OK == $url:$port Responsive"
+    echo  "POSTGRES .............................. OK   == $url:$port Responsive"
   else
-    echo  "POSTGRES FAIL == $url:$port Non Responsive"
+    echo  "POSTGRES .............................. FAIL == $url:$port Non Responsive"
   fi
 }
 
@@ -54,9 +69,9 @@ qpid_broker_test()
 	-k https://$url:$port 1>/dev/null 2>/dev/null
 
   if [ $? -eq 0 ]; then
-    echo  "QPID BROKER OK == $url:$port Responsive"
+    echo  "QPID BROKER ........................... OK   == $url:$port Responsive"
   else
-    echo  "QPID BROKER FAIL == $url:$port Non Responsive"
+    echo  "QPID BROKER ........................... FAIL == $url:$port Non Responsive"
   fi
 }
 
@@ -78,9 +93,9 @@ qpid_client_client_test()
 	-k https://$url:$port 1>/dev/null 2>/dev/null
 
   if [ $? -eq 0 ]; then
-    echo  "QPID ROUTER CLIENT OK == $url:$port Responsive"
+    echo  "QPID ROUTER CLIENT .................... OK   == $url:$port Responsive"
   else
-    echo  "QPID ROUTER CLIENT FAIL == $url:$port Non Responsive"
+    echo  "QPID ROUTER CLIENT .................... FAIL == $url:$port Non Responsive"
   fi
 }
 
@@ -102,9 +117,9 @@ qpid_router_client_test()
 	-k https://$url:$port 1>/dev/null 2>/dev/null
 
   if [ $? -eq 0 ]; then
-    echo  "QPID ROUTER CLIENT OK == $url:$port Responsive"
+    echo  "QPID ROUTER CLIENT .................... OK   == $url:$port Responsive"
   else
-    echo  "QPID ROUTER CLIENT FAIL == $url:$port Non Responsive"
+    echo  "QPID ROUTER CLIENT .................... FAIL == $url:$port Non Responsive"
   fi
 }
 
@@ -126,9 +141,9 @@ qpid_router_server_test()
 	-k https://$url:$port 1>/dev/null 2>/dev/null
 
   if [ $? -eq 0 ]; then
-    echo  "QPID ROUTER SERVER OK == $url:$port Responsive"
+    echo  "QPID ROUTER SERVER .................... OK   == $url:$port Responsive"
   else
-    echo  "QPID ROUTER SERVER FAIL == $url:$port Non Responsive"
+    echo  "QPID ROUTER SERVER .................... FAIL == $url:$port Non Responsive"
   fi
 }
 
@@ -148,9 +163,9 @@ tomcat_test()
 	-k https://$server:8443 1>/dev/null 2>/dev/null
 
   if [ $? -eq 0 ]; then
-    echo  "TOMCAT OK ==  $server:8443 Responsive"
+    echo  "TOMCAT ................................ OK   == $server:8443 Responsive"
   else
-    echo  "TOMCAT FAIL == $server:8443 Non Responsive"
+    echo  "TOMCAT ................................ FAIL == $server:8443 Non Responsive"
   fi
 }
 
@@ -240,6 +255,7 @@ check_servers()
 
   test_postgres localhost 5432
   test_mongodb localhost 27017
+  test_squid localhost 3128
 }
 
 check_servers
