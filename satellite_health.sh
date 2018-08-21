@@ -6,6 +6,16 @@ server=$(hostname -f)
 #DEBUG=true
 DEBUG=false
 
+test_print()
+{
+  name=$1
+  status=$2
+  url_port=$3
+  long_status=$4
+  
+  printf "%-40s%-7s%-40s%-30s\n" "$name" "$status" "$url_port" "$long_status"
+}
+
 test_validation()
 {
   name=$1
@@ -27,9 +37,9 @@ test_validation()
   
   
   if [ $? -eq 0 ]; then
-    echo  "$name ................................. OK   == $url:$port Responsive"
+    test_print "$name" OK $url:$port "Responsive"
   else
-    echo  "$name ................................. FAIL == $url:$port Non Responsive"
+    test_print "$name" FAIL $url:$port "Non Responsive"
   fi
   
 }
@@ -178,6 +188,7 @@ test_squid()
   #set -x
   url=$1
   port=$2
+  name="SQUID"
 
   if [ $DEBUG == "true" ]; then
     echo "Url ....: $url"
@@ -188,9 +199,9 @@ test_squid()
   fi
 
   if [ $? -eq 0 ]; then
-    echo  "SQUID ................................. OK   == $url:$port Responsive"
+    test_print "$name" OK $url:$port "Responsive"
   else
-    echo  "SQUID ................................. FAIL == $url:$port Non Responsive"
+    test_print "$name" FAIL $url:$port "Non Responsive"
   fi
 }
 
@@ -198,6 +209,7 @@ test_mongodb()
 {
   url=$1
   port=$2
+  name="MONGODB"
 
   if [ $DEBUG == "true" ]; then
     echo "Url ....: $url"
@@ -212,9 +224,9 @@ EOF
   fi
 
   if [ $? -eq 0 ]; then
-    echo  "MONGODB ............................... OK   == $url:$port Responsive"
+    test_print "$name" OK $url:$port "Responsive"
   else
-    echo  "MONGODB ............................... FAIL == $url:$port Non Responsive"
+    test_print "$name" FAIL $url:$port "Non Responsive"
   fi
 }
 
@@ -222,6 +234,7 @@ test_postgres()
 {
   url=$1
   port=$2
+  name="POSTGRES"
 
   if [ $DEBUG == "true" ]; then
     echo "Url ....: $url"
@@ -232,9 +245,9 @@ test_postgres()
   fi
 
   if [ $? -eq 0 ]; then
-    echo  "POSTGRES .............................. OK   == $url:$port Responsive"
+    test_print "$name" OK $url:$port "Responsive"
   else
-    echo  "POSTGRES .............................. FAIL == $url:$port Non Responsive"
+    test_print "$name" FAIL $url:$port "Non Responsive"
   fi
 }
 
@@ -245,23 +258,23 @@ test_postgres()
 
 
 ## Services
-test_pulp_ca
-test_pulp_client
-test_katello_default_ca
-test_katello_default_ca_stripped
-test_katello_server_ca
-test_katello_apache
-#test_qpid_broker		#OK
-#test_katello_tomcat		#OK
-test_java_client
-test_puppet_client
-test_puppet_client_ca
-#test_qpid_router_client	#OK
-#test_qpid_router_server	#OK
-test_qpid_client_striped
-test_candlepin-redhat-ca
+##test_pulp_ca
+##test_pulp_client
+##test_katello_default_ca
+##test_katello_default_ca_stripped
+##test_katello_server_ca
+##test_katello_apache
+test_qpid_broker		#OK
+test_katello_tomcat		#OK
+##test_java_client
+##test_puppet_client
+##test_puppet_client_ca
+test_qpid_router_client		#OK
+test_qpid_router_server		#OK
+##test_qpid_client_striped
+##test_candlepin-redhat-ca
 
 ## DataBase and More
-#test_postgres localhost 5432	#OK
-#test_mongodb localhost 27017	#OK
-#test_squid localhost 3128	#OK
+test_postgres localhost 5432	#OK
+test_mongodb localhost 27017	#OK
+test_squid localhost 3128	#OK
