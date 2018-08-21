@@ -260,11 +260,8 @@ test_puppet_client_ca
 #test_qpid_router_server	#OK
 test_qpid_client_striped
 test_candlepin-redhat-ca
-test_squid
-test_mongodb
-test_postgres
 
 ## DataBases
-#test_postgres localhost 5432
-#test_mongodb localhost 27017
-#test_squid localhost 3128
+#test_postgres localhost 5432	#OK
+#test_mongodb localhost 27017	#OK
+#test_squid localhost 3128	#OK
