@@ -2,7 +2,176 @@
 
 # Script to check Satellite Health
 
-SSL_BUILD="/root/ssl-build/"
+server=$(hostname -f)
+#DEBUG=true
+DEBUG=false
+
+test_validation()
+{
+  name=$1
+  cert=$2
+  key=$3
+  url=$4
+  port=$5
+
+  if [ $DEBUG == "true" ]; then
+    echo "Name ...: $name"
+    echo "Cert ...: $cert"
+    echo "Key ....: $key"
+    echo "Url ....: $url"
+    echo "Port ...: $port"
+    curl --cert $cert --key $key -k https://$url:$port
+  else
+    curl --cert $cert --key $key -k https://$url:$port 1>/dev/null 2>/dev/null
+  fi
+  
+  
+  if [ $? -eq 0 ]; then
+    echo  "$name ................................. OK   == $url:$port Responsive"
+  else
+    echo  "$name ................................. FAIL == $url:$port Non Responsive"
+  fi
+  
+}
+
+test_pulp_ca()
+{
+  name="PULP CA"
+  cert="/etc/pki/pulp/ca.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_pulp_client()
+{
+  name="PULP CLIENT"
+  cert="/etc/pki/katello/certs/pulp-client.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_katello_default_ca()
+{
+  name="KATELLO DEFAULT CA"
+  cert="/etc/pki/katello/certs/katello-default-ca.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_katello_default_ca_stripped()
+{
+  name="KATELLO DEFAULT CA STRIPPED"
+  cert="/etc/pki/katello/certs/katello-default-ca-stripped.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_katello_server_ca()
+{
+  name="KATELLO SERVER CA"
+  cert="/etc/pki/katello/certs/katello-server-ca.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_katello_apache()
+{
+  name="KATELLO APACHE"
+  cert="/etc/pki/katello/certs/katello-apache.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_qpid_broker()
+{
+#OK
+  name="QPID BROKER"
+  cert="/etc/pki/katello/certs/$(hostname -f)-qpid-broker.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation "$name" $cert $key localhost 5671
+}
+
+test_katello_tomcat()
+{
+#OK
+  name="TOMCAT"
+  cert="/etc/pki/katello/certs/katello-tomcat.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation "$name" $cert $key $server 8443
+}
+
+test_java_client()
+{
+  name="JAVA CLIENT"
+  cert="/etc/pki/katello/certs/java-client.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_puppet_client()
+{
+  name="PUPPET CLIENT"
+  cert="/etc/pki/katello/puppet/puppet_client.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_puppet_client_ca()
+{
+  name="PUPPET CLIENT CA"
+  cert="/etc/pki/katello/puppet/puppet_client_ca.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_qpid_router_client()
+{
+#OK
+  name="QPID ROUTER CLIENT"
+  cert="/etc/pki/katello/qpid_router_client.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation "$name" $cert $key localhost 5671
+}
+
+test_qpid_router_server()
+{
+#OK
+  name="QPID ROUTER SERVER"
+  cert="/etc/pki/katello/qpid_router_server.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation "$name" $cert $key localhost 5671
+}
+
+test_qpid_client_striped()
+{
+  name="QPID CLIENT STRIPED"
+  cert="/etc/pki/katello/qpid_client_striped.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
+
+test_candlepin-redhat-ca()
+{
+  name="CANDLEPIN REDHAT CA"
+  cert="/etc/candlepin/certs/upstream/candlepin-redhat-ca.crt"
+  key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
+
+  test_validation $name $cert $key $server 8443
+}
 
 test_squid()
 {
@@ -10,7 +179,16 @@ test_squid()
   url=$1
   port=$2
 
-  curl $url:$port 1>/dev/null 2>/dev/null
+  if [ $DEBUG == "true" ]; then
+    echo "Name ...: $name"
+    echo "Cert ...: $cert"
+    echo "Key ....: $key"
+    echo "Url ....: $url"
+    echo "Port ...: $port"
+    curl $url:$port
+  else
+    curl $url:$port 1>/dev/null 2>/dev/null
+  fi
 
   if [ $? -eq 0 ]; then
     echo  "SQUID ................................. OK   == $url:$port Responsive"
@@ -21,13 +199,23 @@ test_squid()
 
 test_mongodb()
 {
-  #set -x
   url=$1
   port=$2
 
+  if [ $DEBUG == "true" ]; then
+    echo "Name ...: $name"
+    echo "Cert ...: $cert"
+    echo "Key ....: $key"
+    echo "Url ....: $url"
+    echo "Port ...: $port"
+cat << EOF | mongo
+use pulp_database
+EOF
+  else
 cat << EOF | mongo 1>/dev/null 2>/dev/null
 use pulp_database
 EOF
+  fi
 
   if [ $? -eq 0 ]; then
     echo  "MONGODB ............................... OK   == $url:$port Responsive"
@@ -38,11 +226,19 @@ EOF
 
 test_postgres()
 {
-  #set -x
   url=$1
   port=$2
 
-  (echo "\conninfo") | su - postgres -c "psql foreman" 1>/dev/null 2>/dev/null
+  if [ $DEBUG == "true" ]; then
+    echo "Name ...: $name"
+    echo "Cert ...: $cert"
+    echo "Key ....: $key"
+    echo "Url ....: $url"
+    echo "Port ...: $port"
+    (echo "\conninfo") | su - postgres -c "psql foreman"
+  else
+    (echo "\conninfo") | su - postgres -c "psql foreman" 1>/dev/null 2>/dev/null
+  fi
 
   if [ $? -eq 0 ]; then
     echo  "POSTGRES .............................. OK   == $url:$port Responsive"
@@ -51,211 +247,15 @@ test_postgres()
   fi
 }
 
-qpid_broker_test()
-{
-  #set -x
-  cert_full_name=$1
-  crt_file=$1
-  key_file=$(echo $cert_full_name | sed -e 's/.crt/.key/g')
-  server=$2
-  url=$3
-  port=$4
 
-#  echo "Server == $server"
-#  echo "Cert File == $cert_full_name"
 
-  curl --cert $SSL_BUILD/$server/$crt_file \
-	--key $SSL_BUILD/$server/$key_file \
-	-k https://$url:$port 1>/dev/null 2>/dev/null
 
-  if [ $? -eq 0 ]; then
-    echo  "QPID BROKER ........................... OK   == $url:$port Responsive"
-  else
-    echo  "QPID BROKER ........................... FAIL == $url:$port Non Responsive"
-  fi
-}
+test_postgres localhost 5432
+test_mongodb localhost 27017
+test_squid localhost 3128
 
-qpid_client_client_test()
-{
-  #set -x
-  cert_full_name=$1
-  crt_file=$1
-  key_file=$(echo $cert_full_name | sed -e 's/.crt/.key/g')
-  server=$2
-  url=$3
-  port=$4
 
-#  echo "Server == $server"
-#  echo "Cert File == $cert_full_name"
-
-  curl --cert $SSL_BUILD/$server/$crt_file \
-	--key $SSL_BUILD/$server/$key_file \
-	-k https://$url:$port 1>/dev/null 2>/dev/null
-
-  if [ $? -eq 0 ]; then
-    echo  "QPID ROUTER CLIENT .................... OK   == $url:$port Responsive"
-  else
-    echo  "QPID ROUTER CLIENT .................... FAIL == $url:$port Non Responsive"
-  fi
-}
-
-qpid_router_client_test()
-{
-  #set -x
-  cert_full_name=$1
-  crt_file=$1
-  key_file=$(echo $cert_full_name | sed -e 's/.crt/.key/g')
-  server=$2
-  url=$3
-  port=$4
-
-#  echo "Server == $server"
-#  echo "Cert File == $cert_full_name"
-
-  curl --cert $SSL_BUILD/$server/$crt_file \
-	--key $SSL_BUILD/$server/$key_file \
-	-k https://$url:$port 1>/dev/null 2>/dev/null
-
-  if [ $? -eq 0 ]; then
-    echo  "QPID ROUTER CLIENT .................... OK   == $url:$port Responsive"
-  else
-    echo  "QPID ROUTER CLIENT .................... FAIL == $url:$port Non Responsive"
-  fi
-}
-
-qpid_router_server_test()
-{
-  #set -x
-  cert_full_name=$1
-  crt_file=$1
-  key_file=$(echo $cert_full_name | sed -e 's/.crt/.key/g')
-  server=$2
-  url=$3
-  port=$4
-
-#  echo "Server == $server"
-#  echo "Cert File == $cert_full_name"
-
-  curl --cert $SSL_BUILD/$server/$crt_file \
-	--key $SSL_BUILD/$server/$key_file \
-	-k https://$url:$port 1>/dev/null 2>/dev/null
-
-  if [ $? -eq 0 ]; then
-    echo  "QPID ROUTER SERVER .................... OK   == $url:$port Responsive"
-  else
-    echo  "QPID ROUTER SERVER .................... FAIL == $url:$port Non Responsive"
-  fi
-}
-
-tomcat_test()
-{
-  #set -x
-  cert_full_name=$1
-  crt_file=$1
-  key_file=$(echo $cert_full_name | sed -e 's/.crt/.key/g')
-  server=$2
-
-#  echo "Server == $server"
-#  echo "Cert File == $cert_full_name"
-
-  curl --cert $SSL_BUILD/$server/$crt_file \
-	--key $SSL_BUILD/$server/$key_file \
-	-k https://$server:8443 1>/dev/null 2>/dev/null
-
-  if [ $? -eq 0 ]; then
-    echo  "TOMCAT ................................ OK   == $server:8443 Responsive"
-  else
-    echo  "TOMCAT ................................ FAIL == $server:8443 Non Responsive"
-  fi
-}
-
-test_area()
-{
-  cert_full_name=$1
-  server=$2
-
-#  echo "=== $1" 
-  check_param=$(echo $cert_full_name | sed -e 's/.crt//g' | grep "\." | wc -l)
-  if [ $check_param -eq 0 ]; then
-    cert_name=$1
-  else
-    cert_name=$(echo $cert_full_name | cut -d- -f2-)
-  fi
- 
-
-  case $cert_name in
-
-    java-client.crt)
-      echo  "Java Client" 
-      ;;
-    pulp-client.crt)
-      echo  "Pulp Client" 
-      ;;
-    apache.crt)
-      echo  "Apache" 
-      ;;
-    foreman-client.crt)
-      echo  "Foreman Client" 
-      ;;
-    foreman-proxy-client.crt)
-      echo  "Foreman Proxy Client" 
-      ;;
-    foreman-proxy.crt)
-      echo  "Foreman Proxy" 
-      ;;
-    puppet-client.crt)
-      echo  "Puppet Client" 
-      ;;
-    qpid-broker.crt)
-      #echo  "Qpid Broker" 
-      qpid_broker_test $cert_full_name $server localhost 5671
-      ;;
-    qpid-client-cert.crt)
-      #echo  "Qpid Client" 
-      qpid_client_client_test $cert_full_name $server localhost 5671
-      ;;
-    qpid-router-client.crt)
-      #echo  "Qpid Router Client" 
-      qpid_router_client_test $cert_full_name $server localhost 5671
-      ;;
-    qpid-router-server.crt)
-      #echo  "Qpid Router Server" 
-      qpid_router_server_test $cert_full_name $server localhost 5671
-      ;;
-    tomcat.crt)
-      #echo  "Tomcat" 
-      tomcat_test $cert_full_name $server $server 8443
-      ;;
-  esac
-}
-
-generated_certs()
-{
-  server=$1
-  #echo "Generated Certs"
-  cert_list=$(ls /root/ssl-build/$server/*.crt | cut -d/ -f5)
-  for b in $cert_list
-  do
-    #echo - $b
-    test_area $b $server
-  done 
-}
-
-check_servers()
-{
-  #echo "Server List"
-  #servers="sat631.local.domain"
-  servers=$(ls -l $SSL_BUILD | grep ^d | awk '{print $NF}')
-
-  for b in $servers
-  do
-    #echo - $b
-    generated_certs $b
-  done
-
-  test_postgres localhost 5432
-  test_mongodb localhost 27017
-  test_squid localhost 3128
-}
-
-check_servers
+test_katello_tomcat
+test_qpid_broker
+test_qpid_router_client
+test_qpid_router_server
