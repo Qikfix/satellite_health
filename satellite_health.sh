@@ -2,6 +2,17 @@
 
 # Script to check Satellite Health
 
+# Date ....: Aug-21-2018
+# Dev .....: Waldirio M Pinheiro <waldirio@redhat.com>/<waldirio@gmail.com>
+# Purpose .: Satellite Health Check
+#		- Certificates
+#		- Services as Postgres, MongoDB and Squid
+#
+# 	     Note. You can or not enable DEBUG "cute"
+#
+# Usage ..: Just copy to your Satellite server and execute it "./satellite_health.sh" 
+#
+
 server=$(hostname -f)
 #DEBUG=true
 DEBUG=false
