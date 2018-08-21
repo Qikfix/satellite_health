@@ -14,8 +14,8 @@
 #
 
 server=$(hostname -f)
-#DEBUG=true
-DEBUG=false
+DEBUG=true
+#DEBUG=false
 
 test_print()
 {
@@ -66,9 +66,11 @@ test_validation()
     echo "Key ....: $key"
     echo "Url ....: $url"
     echo "Port ...: $port"
-    curl --cert $cert --key $key -k https://$url:$port
+    #curl --cert $cert --key $key -k https://$url:$port
+    curl -v --cert $cert --key $key https://$url:$port
   else
-    curl --cert $cert --key $key -k https://$url:$port 1>/dev/null 2>/dev/null
+    #curl --cert $cert --key $key -k https://$url:$port 1>/dev/null 2>/dev/null
+    curl --cert $cert --key $key https://$url:$port 1>/dev/null 2>/dev/null
   fi
   
   
@@ -99,9 +101,9 @@ test_pulp_ca()
   
 
   if [ "$md5_key" == "$md5_crt" ]; then
-    test_print "$name" OK "-" "MD5 Hash from pulp/ca.key and pulp/ca.key match"
+    test_print "$name" OK "-" "MD5 Hash from pulp/ca.key and pulp/ca.crt match"
   else
-    test_print "$name" FAIL "-" "MD5 Hash from pulp/ca.key and pulp/ca.key doesn't match"
+    test_print "$name" FAIL "-" "MD5 Hash from pulp/ca.key and pulp/ca.crt doesn't match"
   fi
 
 }
