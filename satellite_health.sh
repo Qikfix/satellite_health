@@ -40,7 +40,7 @@ test_pulp_ca()
   cert="/etc/pki/pulp/ca.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_pulp_client()
@@ -49,7 +49,7 @@ test_pulp_client()
   cert="/etc/pki/katello/certs/pulp-client.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_katello_default_ca()
@@ -58,7 +58,7 @@ test_katello_default_ca()
   cert="/etc/pki/katello/certs/katello-default-ca.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_katello_default_ca_stripped()
@@ -67,7 +67,7 @@ test_katello_default_ca_stripped()
   cert="/etc/pki/katello/certs/katello-default-ca-stripped.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_katello_server_ca()
@@ -76,7 +76,7 @@ test_katello_server_ca()
   cert="/etc/pki/katello/certs/katello-server-ca.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_katello_apache()
@@ -85,7 +85,7 @@ test_katello_apache()
   cert="/etc/pki/katello/certs/katello-apache.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_qpid_broker()
@@ -114,7 +114,7 @@ test_java_client()
   cert="/etc/pki/katello/certs/java-client.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_puppet_client()
@@ -123,7 +123,7 @@ test_puppet_client()
   cert="/etc/pki/katello/puppet/puppet_client.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_puppet_client_ca()
@@ -132,7 +132,7 @@ test_puppet_client_ca()
   cert="/etc/pki/katello/puppet/puppet_client_ca.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_qpid_router_client()
@@ -161,7 +161,7 @@ test_qpid_client_striped()
   cert="/etc/pki/katello/qpid_client_striped.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_candlepin-redhat-ca()
@@ -170,7 +170,7 @@ test_candlepin-redhat-ca()
   cert="/etc/candlepin/certs/upstream/candlepin-redhat-ca.crt"
   key=$(echo $cert | sed -e 's/certs/private/g' -e 's/.crt/.key/g')
 
-  test_validation $name $cert $key $server 8443
+  test_validation "$name" $cert $key $server 8443
 }
 
 test_squid()
@@ -180,9 +180,6 @@ test_squid()
   port=$2
 
   if [ $DEBUG == "true" ]; then
-    echo "Name ...: $name"
-    echo "Cert ...: $cert"
-    echo "Key ....: $key"
     echo "Url ....: $url"
     echo "Port ...: $port"
     curl $url:$port
@@ -203,9 +200,6 @@ test_mongodb()
   port=$2
 
   if [ $DEBUG == "true" ]; then
-    echo "Name ...: $name"
-    echo "Cert ...: $cert"
-    echo "Key ....: $key"
     echo "Url ....: $url"
     echo "Port ...: $port"
 cat << EOF | mongo
@@ -230,9 +224,6 @@ test_postgres()
   port=$2
 
   if [ $DEBUG == "true" ]; then
-    echo "Name ...: $name"
-    echo "Cert ...: $cert"
-    echo "Key ....: $key"
     echo "Url ....: $url"
     echo "Port ...: $port"
     (echo "\conninfo") | su - postgres -c "psql foreman"
@@ -250,12 +241,30 @@ test_postgres()
 
 
 
-test_postgres localhost 5432
-test_mongodb localhost 27017
-test_squid localhost 3128
 
 
-test_katello_tomcat
-test_qpid_broker
-test_qpid_router_client
-test_qpid_router_server
+
+## Services
+test_pulp_ca
+test_pulp_client
+test_katello_default_ca
+test_katello_default_ca_stripped
+test_katello_server_ca
+test_katello_apache
+#test_qpid_broker		#OK
+#test_katello_tomcat		#OK
+test_java_client
+test_puppet_client
+test_puppet_client_ca
+#test_qpid_router_client	#OK
+#test_qpid_router_server	#OK
+test_qpid_client_striped
+test_candlepin-redhat-ca
+test_squid
+test_mongodb
+test_postgres
+
+## DataBases
+#test_postgres localhost 5432
+#test_mongodb localhost 27017
+#test_squid localhost 3128
