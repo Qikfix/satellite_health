@@ -261,7 +261,7 @@ test_puppet_client_ca
 test_qpid_client_striped
 test_candlepin-redhat-ca
 
-## DataBases
+## DataBase and More
 #test_postgres localhost 5432	#OK
 #test_mongodb localhost 27017	#OK
 #test_squid localhost 3128	#OK
